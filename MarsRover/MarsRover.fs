@@ -80,12 +80,12 @@ let RotateLeft: Rotate =
 let RotateRight: Rotate =
     fun position ->
         match position.direction with
-        | North -> {x = position.x; y = position.y; direction = East}
-        | South -> {x = position.x; y = position.y; direction = West}
-        | East ->  {x = position.x; y = position.y; direction = South}
-        | West ->  {x = position.x; y = position.y; direction = North}
+        | North -> {position with direction = East}
+        | South -> {position with direction = West}
+        | East ->  {position with direction = South}
+        | West ->  {position with direction = North}
 
-let Move: Position -> Position =
+let CalculateNewCoordinates: Position -> Position =
     fun position ->
         match position.direction with
         | North -> {position with y = generateCoordinateSuccessor position.y}
@@ -99,24 +99,23 @@ let detectCollision: Obstacle list -> Position -> Option<Obstacle> =
             {x=position.x; y=position.y} |> Some
             else None
 
-let tryApplyCommand: Rover -> Rover -> Obstacle list -> Rover =
+let TryApplyCommand: Rover -> Rover -> Obstacle list -> Rover =
     fun currentRover nextRover obstacles ->
-      //match detectCollision obstacles nextRover.Position with
-        detectCollision obstacles nextRover.Position |> Option.fold (fun _ obstacle -> {currentRover with Status = Blocked; DetectedObstacle = Some obstacle}) nextRover
-        //| Some o -> {nextRover with Status = Blocked}
-        //| None -> nextRover
+        match detectCollision obstacles nextRover.Position with
+            | Some obstacle -> {currentRover with Status = Blocked; DetectedObstacle = Some obstacle}
+            | None -> nextRover
 
-let generatePosition: char -> Rover -> Obstacle list -> Rover =
+let GeneratePosition: char -> Rover -> Obstacle list -> Rover =
     fun command rover obstacles ->
         match command with
-            | 'L' -> tryApplyCommand rover {rover with Position = RotateLeft rover.Position} obstacles
-            | 'R' -> tryApplyCommand rover {rover with Position = RotateRight rover.Position} obstacles
-            | 'M' -> tryApplyCommand rover {rover with Position = Move rover.Position} obstacles
+            | 'L' -> TryApplyCommand rover {rover with Position = RotateLeft rover.Position} obstacles
+            | 'R' -> TryApplyCommand rover {rover with Position = RotateRight rover.Position} obstacles
+            | 'M' -> TryApplyCommand rover {rover with Position = CalculateNewCoordinates rover.Position} obstacles
             |  _  -> {rover with Position = rover.Position}
 
 let Execute: string -> Rover -> Obstacle list -> Rover =
     fun commands rover obstacles ->
         Seq.toList commands |> List.fold (fun rover command ->
         match rover.Status with
-        | Operational -> generatePosition command rover obstacles
+        | Operational -> GeneratePosition command rover obstacles
         | Blocked -> {rover with Position = rover.Position}) rover
