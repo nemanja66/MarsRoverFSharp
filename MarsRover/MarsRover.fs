@@ -93,7 +93,7 @@ let CalculateNewCoordinates: Position -> Position =
         | East ->  {position with x = generateCoordinateSuccessor position.x}
         | West ->  {position with x = generateCoordinatePredecessor position.x}
 
-let detectCollision: Obstacle list -> Position -> Option<Obstacle> =
+let DetectCollision: Obstacle list -> Position -> Option<Obstacle> =
     fun obstacles position ->  
         if List.contains {x=position.x; y=position.y} obstacles  then      
             {x=position.x; y=position.y} |> Some
@@ -101,11 +101,11 @@ let detectCollision: Obstacle list -> Position -> Option<Obstacle> =
 
 let TryApplyCommand: Rover -> Rover -> Obstacle list -> Rover =
     fun currentRover nextRover obstacles ->
-        match detectCollision obstacles nextRover.Position with
+        match DetectCollision obstacles nextRover.Position with
             | Some obstacle -> {currentRover with Status = Blocked; DetectedObstacle = Some obstacle}
             | None -> nextRover
 
-let GeneratePosition: char -> Rover -> Obstacle list -> Rover =
+let CalculateNewPosition: char -> Rover -> Obstacle list -> Rover =
     fun command rover obstacles ->
         match command with
             | 'L' -> TryApplyCommand rover {rover with Position = RotateLeft rover.Position} obstacles
@@ -113,9 +113,9 @@ let GeneratePosition: char -> Rover -> Obstacle list -> Rover =
             | 'M' -> TryApplyCommand rover {rover with Position = CalculateNewCoordinates rover.Position} obstacles
             |  _  -> {rover with Position = rover.Position}
 
-let Execute: string -> Rover -> Obstacle list -> Rover =
+let MoveRover: string -> Rover -> Obstacle list -> Rover =
     fun commands rover obstacles ->
         Seq.toList commands |> List.fold (fun rover command ->
         match rover.Status with
-        | Operational -> GeneratePosition command rover obstacles
+        | Operational -> CalculateNewPosition command rover obstacles
         | Blocked -> {rover with Position = rover.Position}) rover
