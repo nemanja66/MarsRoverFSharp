@@ -4,6 +4,11 @@ type Status =
     | Operational
     | Blocked
 
+type Command =
+    | RotateLeft
+    | RotateRight
+    | Move
+
 type Coordinate =
     | One
     | Two
