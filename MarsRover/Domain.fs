@@ -44,7 +44,7 @@ type Command =
     | RotateRight
     | Move
 
-let generateCoordinateSuccessor: Coordinate -> Coordinate =
+let generateCoordinateSuccessor =
     fun coordinate ->
         match coordinate with
         | One -> Two
@@ -58,7 +58,7 @@ let generateCoordinateSuccessor: Coordinate -> Coordinate =
         | Nine -> Ten
         | Ten -> One
 
-let generateCoordinatePredecessor: Coordinate -> Coordinate =
+let generateCoordinatePredecessor =
     fun coordinate ->
         match coordinate with
         | Ten -> Nine
@@ -96,15 +96,15 @@ let CalculateNewCoordinates =
         | East ->  {position with x = generateCoordinateSuccessor position.x}
         | West ->  {position with x = generateCoordinatePredecessor position.x}
 
-let DetectCollision: Obstacle list -> Position -> Option<Obstacle> =
-    fun obstacles nextPosition ->  
-        if List.contains {x=nextPosition.x; y=nextPosition.y} obstacles  then      
-            {x=nextPosition.x; y=nextPosition.y} |> Some
+let DetectCollision =
+    fun obstacles maybeObstacle ->  
+        if List.contains maybeObstacle obstacles  then      
+            {x=maybeObstacle.x; y=maybeObstacle.y} |> Some
             else None
 
 let TryApplyCommand =
     fun currentRover nextRover obstacles ->
-        match DetectCollision obstacles nextRover.Position with
+        match DetectCollision obstacles {x=nextRover.Position.x; y=nextRover.Position.y} with
             | Some obstacle -> {currentRover with Status = Blocked; DetectedObstacle = Some obstacle}
             | None -> nextRover
 
