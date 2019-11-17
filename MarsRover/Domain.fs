@@ -126,9 +126,6 @@ let ParseInput =
                 |  _  -> commands
             ) commands |> List.rev
 
-let getFirstElementOfAString: string -> char =
-    fun input -> input.[0]
-
 let DirectionToString =
      fun direction ->
          match direction with
