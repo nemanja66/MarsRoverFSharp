@@ -97,9 +97,9 @@ let CalculateNewCoordinates =
         | West ->  {position with x = generateCoordinatePredecessor position.x}
 
 let DetectCollision: Obstacle list -> Position -> Option<Obstacle> =
-    fun obstacles position ->  
-        if List.contains {x=position.x; y=position.y} obstacles  then      
-            {x=position.x; y=position.y} |> Some
+    fun obstacles nextPosition ->  
+        if List.contains {x=nextPosition.x; y=nextPosition.y} obstacles  then      
+            {x=nextPosition.x; y=nextPosition.y} |> Some
             else None
 
 let TryApplyCommand =
