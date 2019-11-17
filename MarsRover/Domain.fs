@@ -4,11 +4,6 @@ type Status =
     | Operational
     | Blocked
 
-type Command =
-    | RotateLeft
-    | RotateRight
-    | Move
-
 type Coordinate =
     | One
     | Two
@@ -44,7 +39,10 @@ type Rover = {
     DetectedObstacle: Option<Obstacle>
 }
 
-type Rotate = Position -> Position
+type Command =
+    | RotateLeft
+    | RotateRight
+    | Move
 
 let generateCoordinateSuccessor: Coordinate -> Coordinate =
     fun coordinate ->
@@ -74,7 +72,7 @@ let generateCoordinatePredecessor: Coordinate -> Coordinate =
         | Two -> One
         | One -> Ten
 
-let RotateLeft: Rotate =
+let RotateLeft =
     fun position ->
         match position.direction with
         | North -> {position with direction = West}
@@ -82,7 +80,7 @@ let RotateLeft: Rotate =
         | East ->  {position with direction = North}
         | West ->  {position with direction = South}
 
-let RotateRight: Rotate =
+let RotateRight =
     fun position ->
         match position.direction with
         | North -> {position with direction = East}
@@ -90,7 +88,7 @@ let RotateRight: Rotate =
         | East ->  {position with direction = South}
         | West ->  {position with direction = North}
 
-let CalculateNewCoordinates: Position -> Position =
+let CalculateNewCoordinates =
     fun position ->
         match position.direction with
         | North -> {position with y = generateCoordinateSuccessor position.y}
@@ -104,23 +102,33 @@ let DetectCollision: Obstacle list -> Position -> Option<Obstacle> =
             {x=position.x; y=position.y} |> Some
             else None
 
-let TryApplyCommand: Rover -> Rover -> Obstacle list -> Rover =
+let TryApplyCommand =
     fun currentRover nextRover obstacles ->
         match DetectCollision obstacles nextRover.Position with
             | Some obstacle -> {currentRover with Status = Blocked; DetectedObstacle = Some obstacle}
             | None -> nextRover
 
-let CalculateNewPosition: char -> Rover -> Obstacle list -> Rover =
+let CalculateNewPosition =
     fun command rover obstacles ->
         match command with
-            | 'L' -> TryApplyCommand rover {rover with Position = RotateLeft rover.Position} obstacles
-            | 'R' -> TryApplyCommand rover {rover with Position = RotateRight rover.Position} obstacles
-            | 'M' -> TryApplyCommand rover {rover with Position = CalculateNewCoordinates rover.Position} obstacles
-            |  _  -> {rover with Position = rover.Position}
+            | RotateLeft -> TryApplyCommand rover {rover with Position = RotateLeft rover.Position} obstacles
+            | RotateRight -> TryApplyCommand rover {rover with Position = RotateRight rover.Position} obstacles
+            | Move -> TryApplyCommand rover {rover with Position = CalculateNewCoordinates rover.Position} obstacles
 
-let MoveRover: string -> Rover -> Obstacle list -> Rover =
+let ParseInput =
+    fun chars ->
+        let commands: Command list = List.Empty 
+        Seq.toList chars |> List.fold (fun commands char ->
+            match char with
+                | 'L' -> Command.RotateLeft :: commands
+                | 'R' -> Command.RotateRight :: commands
+                | 'M' -> Command.Move :: commands
+                |  _  -> commands
+            ) commands |> List.rev
+                        
+let Execute =
     fun commands rover obstacles ->
-        Seq.toList commands |> List.fold (fun rover command ->
+        ParseInput commands |> List.fold (fun rover command ->
         match rover.Status with
         | Operational -> CalculateNewPosition command rover obstacles
         | Blocked -> {rover with Position = rover.Position}) rover

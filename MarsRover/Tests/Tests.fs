@@ -11,7 +11,7 @@ let ``GoToPosition23E`` () =
     let startingRover: MarsRover.Rover = {Position = startingPosition; Status = MarsRover.Operational; DetectedObstacle = None}
     let expectedRover: MarsRover.Rover = {Position = expectedPosition; Status = MarsRover.Operational; DetectedObstacle = None}
     let obstacles: MarsRover.Obstacle list = List.empty<MarsRover.Obstacle>
-    let resultRover = MarsRover.MoveRover commands startingRover obstacles
+    let resultRover = MarsRover.Execute commands startingRover obstacles
     let x = expectedRover = resultRover
     Assert.True(x)
 
@@ -23,7 +23,7 @@ let ``GoToPositionFrom23ETo83W`` () =
     let startingRover: MarsRover.Rover = {Position = startingPosition; Status = MarsRover.Operational; DetectedObstacle = None}
     let expectedRover: MarsRover.Rover = {Position = expectedPosition; Status = MarsRover.Operational; DetectedObstacle = None}
     let obstacles: MarsRover.Obstacle list = List.empty<MarsRover.Obstacle>
-    let resultRover = MarsRover.MoveRover commands startingRover obstacles
+    let resultRover = MarsRover.Execute commands startingRover obstacles
     let x = expectedRover = resultRover
     Assert.True(x)
 
@@ -35,7 +35,7 @@ let ``HitAObstacleStopAndReturnPositionOfTheObstacle`` () =
      let expectedPosition: MarsRover.Position = {x = MarsRover.Coordinate.Two; y = MarsRover.Coordinate.Three; direction = MarsRover.Direction.East}
      let startingRover: MarsRover.Rover = {Position = startingPosition; Status = MarsRover.Operational; DetectedObstacle = None}
      let expectedRover: MarsRover.Rover = {Position = expectedPosition; Status = MarsRover.Blocked; DetectedObstacle = Some {x=MarsRover.Three; y=MarsRover.Three}}
-     let resultRover = MarsRover.MoveRover commands startingRover obstacles
+     let resultRover = MarsRover.Execute commands startingRover obstacles
      let x = expectedRover = resultRover
      Assert.True(x)
 
@@ -47,7 +47,7 @@ let ``HitAObstacleStopAndReturnPositionOfTheObstacleAnotherWay`` () =
      let expectedPosition: MarsRover.Position = {x = MarsRover.Coordinate.Three; y = MarsRover.Coordinate.Two; direction = MarsRover.Direction.North}
      let startingRover: MarsRover.Rover = {Position = startingPosition; Status = MarsRover.Operational; DetectedObstacle = None}
      let expectedRover: MarsRover.Rover = {Position = expectedPosition; Status = MarsRover.Blocked; DetectedObstacle = Some {x=MarsRover.Three; y=MarsRover.Three}}
-     let resultRover = MarsRover.MoveRover commands startingRover obstacles
+     let resultRover = MarsRover.Execute commands startingRover obstacles
      let x = expectedRover = resultRover
      Assert.True(x)
 
@@ -59,7 +59,7 @@ let ``HitAObstacleStopAndReturnPositionOfTheObstacleOnTheFirstMove`` () =
      let expectedPosition: MarsRover.Position = {x = MarsRover.Coordinate.One; y = MarsRover.Coordinate.One; direction = MarsRover.Direction.North}
      let startingRover: MarsRover.Rover = {Position = startingPosition; Status = MarsRover.Operational; DetectedObstacle = None}
      let expectedRover: MarsRover.Rover = {Position = expectedPosition; Status = MarsRover.Blocked; DetectedObstacle = Some {x=MarsRover.One; y=MarsRover.Two}}
-     let resultRover = MarsRover.MoveRover commands startingRover obstacles
+     let resultRover = MarsRover.Execute commands startingRover obstacles
      let x = expectedRover = resultRover
      Assert.True(x)
 
@@ -71,6 +71,6 @@ let ``MakeNoMovementWhenPassedEmptyArrayOfCommands`` () =
     let startingRover: MarsRover.Rover = {Position = startingPosition; Status = MarsRover.Operational; DetectedObstacle = None}
     let expectedRover: MarsRover.Rover = {Position = expectedPosition; Status = MarsRover.Operational; DetectedObstacle = None}
     let obstacles: MarsRover.Obstacle list = List.empty<MarsRover.Obstacle>
-    let resultRover = MarsRover.MoveRover commands startingRover obstacles
+    let resultRover = MarsRover.Execute commands startingRover obstacles
     let x = expectedRover = resultRover
     Assert.True(x)

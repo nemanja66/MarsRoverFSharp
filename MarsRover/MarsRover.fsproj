@@ -5,7 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="MarsRover.fs" />
+    <Compile Include="API.fs" />
+    <Compile Include="Domain.fs" />
   </ItemGroup>
 
 </Project>
