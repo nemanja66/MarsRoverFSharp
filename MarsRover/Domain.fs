@@ -125,10 +125,43 @@ let ParseInput =
                 | 'M' -> Command.Move :: commands
                 |  _  -> commands
             ) commands |> List.rev
+
+let getFirstElementOfAString: string -> char =
+    fun input -> input.[0]
+
+let DirectionToString =
+     fun direction ->
+         match direction with
+         | North -> "N"
+         | South -> "S"
+         | East -> "E"
+         | West -> "W"
+
+let CoordinateToString = 
+    fun coordinate ->
+        match coordinate with 
+            | One -> "1"
+            | Two -> "2"
+            | Three -> "3"
+            | Four -> "4"
+            | Five -> "5"
+            | Six -> "6"
+            | Seven -> "7"
+            | Eight -> "8"
+            | Nine -> "9"
+            | Ten -> "10"
+ 
+let FormatOutput: Rover -> string =
+    fun rover -> 
+        let position = CoordinateToString rover.Position.x + ":" + CoordinateToString rover.Position.y + ":" + DirectionToString rover.Position.direction
+        match rover.DetectedObstacle with
+           | Some obstacle -> position + " " + "O:" + CoordinateToString obstacle.x + ":" + CoordinateToString obstacle.y
+           | None -> position
                         
 let Execute =
-    fun commands rover obstacles ->
+    fun rover obstacles commands ->
         ParseInput commands |> List.fold (fun rover command ->
         match rover.Status with
         | Operational -> CalculateNewPosition command rover obstacles
         | Blocked -> {rover with Position = rover.Position}) rover
+        |> FormatOutput

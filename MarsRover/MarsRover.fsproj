@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="API.fs" />
     <Compile Include="Domain.fs" />
+    <Compile Include="API.fs" />
   </ItemGroup>
 
 </Project>
