@@ -1,4 +1,4 @@
-﻿module MarsRover
+﻿module Domain
 
 type Status =
     | Operational
