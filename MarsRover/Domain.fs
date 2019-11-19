@@ -140,7 +140,7 @@ let CoordinateToString coordinate =
 let FormatOutput rover =
         let position = CoordinateToString rover.Position.x + ":" + CoordinateToString rover.Position.y + ":" + DirectionToString rover.Position.direction
         match rover.DetectedObstacle with
-           | Some obstacle -> position + " " + "O:" + CoordinateToString obstacle.x + ":" + CoordinateToString obstacle.y
+           | Some obstacle -> "O:" + CoordinateToString obstacle.x + ":" + CoordinateToString obstacle.y + ":" + DirectionToString rover.Position.direction
            | None -> position
                         
 let Execute rover obstacles commands =

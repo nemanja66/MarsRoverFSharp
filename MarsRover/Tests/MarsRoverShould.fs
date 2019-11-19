@@ -134,11 +134,11 @@ let ``WrapAroundWestEdge`` (commands) =
 
 [<Theory>]
 [<InlineData("MMRMMRMM")>]
-let ``HitAObstacleStopAndReturnPositionOfTheRoverAndTheObstacle`` (commands) =
+let ``HitAObstacleStopAndReturnTheObstacle`` (commands) =
      let obstacles: Obstacle list = [{x=Three; y=Three}]
      let startingPosition: Position = {x = Coordinate.One; y = Coordinate.One; direction = Direction.North}
      let startingRover: Rover = {Position = startingPosition; Status = Operational; DetectedObstacle = None}
-     let expectedResult = "2:3:E O:3:3"
+     let expectedResult = "O:3:3:E"
      let result = Execute startingRover obstacles commands
      let x = result = expectedResult
      Assert.True(x)
