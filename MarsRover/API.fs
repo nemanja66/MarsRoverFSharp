@@ -27,8 +27,9 @@ let Execute: string -> string =
         Impure.SaveResult result path
         result
 
-//Exeucte with pipe attempt
-//let SaveResult roverData path = "" //Parses and saves theoutput of a rover movement
+//Execute with pipe attempt
+
+//let SaveResult roverData path = "" //Parses and saves the output of a rover movement
 //let Execute: string -> string = 
 //    fun commands -> 
 //      Impure.GetRoverData path 
