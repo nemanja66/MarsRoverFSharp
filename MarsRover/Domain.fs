@@ -96,10 +96,10 @@ let DetectCollision obstacles maybeObstacle =
             {x=maybeObstacle.x; y=maybeObstacle.y} |> Some
             else None
 
-let TryApplyCommand  currentRover nextRover obstacles =
-        match DetectCollision obstacles {x=nextRover.Position.x; y=nextRover.Position.y} with
+let TryApplyCommand currentRover roverWithNextPosition obstacles =
+        match DetectCollision obstacles {x=roverWithNextPosition.Position.x; y=roverWithNextPosition.Position.y} with
             | Some obstacle -> {currentRover with Status = Blocked; DetectedObstacle = Some obstacle}
-            | None -> nextRover
+            | None -> roverWithNextPosition
 
 let CalculateNewPosition command rover obstacles =
         match command with
@@ -147,5 +147,5 @@ let Execute rover obstacles commands =
         ParseInput commands |> List.fold (fun rover command ->
         match rover.Status with
         | Operational -> CalculateNewPosition command rover obstacles
-        | Blocked -> {rover with Position = rover.Position}) rover
+        | Blocked -> rover) rover
         |> FormatOutput

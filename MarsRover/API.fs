@@ -19,7 +19,7 @@ module Impure =
 let path = ""
 
 // The IMPURE-PURE-IMPURE sandwich
-//THIS IS THE API FOR THE USER
+//THIS IS THE API FOR THE CLIENT
 let Execute commands = 
         let rover = Impure.GetRoverData path 
         let obstacles = Impure.GetObstacles path
@@ -29,12 +29,12 @@ let Execute commands =
 
 //Execute with pipe attempt
 
-//let SaveResult roverData path = "" //Parses and saves the output of a rover movement
-//let Execute: string -> string = 
+//let SaveResult2 roverData path = "" //Parses and saves the output of a rover movement
+//let Execute2: string -> string = 
 //    fun commands -> 
 //      Impure.GetRoverData path 
-//          |> MarsRover.Execute
-//          |> fun execute -> execute (Impure.GetObstacles path)
-//          |> fun execute -> execute commands
-//          |> Impure.SaveResult path
+//          |> Domain.Execute
+//          <| Impure.GetObstacles path
+//          <| commands
+//          |> SaveResult2 path
 
