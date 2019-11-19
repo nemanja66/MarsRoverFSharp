@@ -19,6 +19,7 @@ module Impure =
 let path = ""
 
 // The IMPURE-PURE-IMPURE sandwich
+//THIS IS THE API FOR THE USER
 let Execute: string -> string = 
     fun commands -> 
         let rover = Impure.GetRoverData path 
