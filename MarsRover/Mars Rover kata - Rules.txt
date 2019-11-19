@@ -7,4 +7,4 @@
 after the move e.g. 2:1:N.
 * Implement wrapping from one edge of the grid to another (planets are spheres after all).
 * The grid may have obstacles. If a given sequence of commands encounters an obstacle, the rover moves up to the last possible point, 
-aborts the sequence and reports the obstacle (it reports the current position also) e.g. (2:1:N O:2:2).
+aborts the sequence and reports the obstacle e.g. (O:2:2:N).
