@@ -20,8 +20,7 @@ let path = ""
 
 // The IMPURE-PURE-IMPURE sandwich
 //THIS IS THE API FOR THE USER
-let Execute: string -> string = 
-    fun commands -> 
+let Execute commands = 
         let rover = Impure.GetRoverData path 
         let obstacles = Impure.GetObstacles path
         let result = Execute rover obstacles commands //Pure
