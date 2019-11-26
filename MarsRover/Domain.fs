@@ -1,5 +1,11 @@
 ﻿module Domain
 
+type Result<'TSuccess, 'TFailure> =
+    | Success of 'TSuccess
+    | Failure of 'TFailure
+
+let composeMovementFunctions fs = List.reduce (>>) fs
+
 type Status =
     | Operational
     | Blocked
@@ -39,10 +45,17 @@ type Rover = {
     DetectedObstacle: Option<Obstacle>
 }
 
+type MovementFunction = Position -> Position
+
 type Command =
     | RotateLeft
     | RotateRight
     | Move
+
+//type Command2 =
+//    | RotateLeft of MovementFunction
+//    | RotateRight of MovementFunction
+//    | Move of MovementFunction
 
 let generateCoordinateSuccessor coordinate =
         match coordinate with
@@ -96,6 +109,11 @@ let DetectCollision obstacles maybeObstacle =
             {x=maybeObstacle.x; y=maybeObstacle.y} |> Some
             else None
 
+let detectCollision2 obstacles maybeObstacle =
+        match List.tryFind maybeObstacle obstacles  with
+        | Some obstacle -> Success obstacle
+        | None -> Failure "Next position is not an obstacle!"
+
 let TryApplyCommand currentRover roverWithNextPosition obstacles =
         match DetectCollision obstacles {x=roverWithNextPosition.Position.x; y=roverWithNextPosition.Position.y} with
             | Some obstacle -> {currentRover with Status = Blocked; DetectedObstacle = Some obstacle}
@@ -116,6 +134,16 @@ let ParseInput chars =
                 | 'M' -> Command.Move :: commands
                 |  _  -> commands
             ) commands |> List.rev
+
+let ParseInput2 chars =
+    let commands = List.Empty 
+    Seq.toList chars |> List.fold (fun commands char ->
+        match char with
+            | 'L' -> (fun position -> RotateLeft position) :: commands
+            | 'R' -> (fun position -> RotateRight position) :: commands
+            | 'M' -> (fun position -> CalculateNewCoordinates position) :: commands
+            |  _  -> commands
+        ) commands |> List.rev
 
 let DirectionToString direction =
          match direction with
@@ -149,3 +177,8 @@ let Execute rover obstacles commands =
         | Operational -> CalculateNewPosition command rover obstacles
         | Blocked -> rover) rover
         |> FormatOutput
+
+let Execute2 rover obstacles commands = 
+        ParseInput2 commands
+        |> composeMovementFunctions
+        
