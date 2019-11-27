@@ -77,21 +77,24 @@ let generateCoordinatePredecessor coordinate =
         | Two -> One
         | One -> Ten
 
-let RotateLeft position =
+let RotateLeft: Position -> Position = 
+    fun position ->
         match position.direction with
         | North -> {position with direction = West}
         | South -> {position with direction = East}
         | East ->  {position with direction = North}
         | West ->  {position with direction = South}
 
-let RotateRight position =
+let RotateRight: Position -> Position = 
+    fun position ->
         match position.direction with
         | North -> {position with direction = East}
         | South -> {position with direction = West}
         | East ->  {position with direction = South}
         | West ->  {position with direction = North}
 
-let CalculateNewCoordinates position =
+let CalculateNewCoordinates: Position -> Position = 
+    fun position ->
         match position.direction with
         | North -> {position with y = generateCoordinateSuccessor position.y}
         | South -> {position with y = generateCoordinatePredecessor position.y}
@@ -103,18 +106,18 @@ let DetectCollision obstacles maybeObstacle =
             {x=maybeObstacle.x; y=maybeObstacle.y; direction = maybeObstacle.direction} |> Some
             else None
 
-let tryApplyCommandROP: Position -> Obstacle list -> Result<Position, Obstacle> =
-    fun nextPosition obstacles ->
+let tryApplyCommandROP:  Obstacle list -> Position-> Result<Position, Obstacle> =
+    fun obstacles nextPosition ->
     match DetectCollision obstacles {x=nextPosition.x; y=nextPosition.y; direction = nextPosition.direction} with
-        | Some obstacle -> Success {x=obstacle.x; y=obstacle.y; direction = obstacle.direction}
-        | None -> Failure {x=nextPosition.x; y=nextPosition.y; direction = nextPosition.direction}
+        | Some obstacle -> Failure {x=obstacle.x; y=obstacle.y; direction = obstacle.direction}
+        | None -> Success {x=nextPosition.x; y=nextPosition.y; direction = nextPosition.direction}
 
 let calculateNewPositionROP: Command -> Obstacle list -> Position -> Result<Position, Obstacle> =
     fun command obstacles position->
         match command with
-            | RotateLeft -> tryApplyCommandROP position obstacles
-            | RotateRight -> tryApplyCommandROP position obstacles
-            | Move -> tryApplyCommandROP position obstacles
+            | RotateLeft -> position |> RotateLeft |> tryApplyCommandROP obstacles
+            | RotateRight -> position |> RotateRight |> tryApplyCommandROP obstacles
+            | Move -> position |> CalculateNewCoordinates |> tryApplyCommandROP obstacles
 
 let ParseInput chars =
         let commands: Command list = List.Empty 
@@ -125,16 +128,6 @@ let ParseInput chars =
                 | 'M' -> Command.Move :: commands
                 |  _  -> commands
             ) commands |> List.rev
-
-//let ParseInput2 chars =
-//    let commands = List.Empty 
-//    Seq.toList chars |> List.fold (fun commands char ->
-//        match char with
-//            | 'L' -> (fun position -> RotateLeft position) :: commands
-//            | 'R' -> (fun position -> RotateRight position) :: commands
-//            | 'M' -> (fun position -> CalculateNewCoordinates position) :: commands
-//            |  _  -> commands
-//        ) commands |> List.rev
 
 let DirectionToString direction =
          match direction with
@@ -159,8 +152,8 @@ let CoordinateToString coordinate =
 let formatOutputROP: Result<Position, Obstacle> -> string =
         fun result ->
         match result with
-           | Success o -> "O:" + CoordinateToString o.x + ":" + CoordinateToString o.y + ":" + DirectionToString o.direction
-           | Failure p -> CoordinateToString p.x + ":" + CoordinateToString p.y + ":" + DirectionToString p.direction
+           | Success p -> CoordinateToString p.x + ":" + CoordinateToString p.y + ":" + DirectionToString p.direction
+           | Failure o -> "O:" + CoordinateToString o.x + ":" + CoordinateToString o.y + ":" + DirectionToString o.direction
 
 let Execute: Position -> Obstacle list -> string -> string =
     fun position obstacles commands ->

@@ -7,9 +7,8 @@ open Domain
 let ``MakeNoMovementWhenPassedEmptyArrayOfCommands`` () =
     let commands = ""
     let startingPosition: Position = {x = Coordinate.One; y = Coordinate.One; direction = Direction.North}
-    let startingRover: Rover = {Position = startingPosition; Status = Operational; DetectedObstacle = None}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute startingRover obstacles commands
+    let result = Execute startingPosition obstacles commands
     let expectedResult = "1:1:N"
     let x = expectedResult = result
     Assert.True(x)
@@ -21,9 +20,8 @@ let ``MakeNoMovementWhenPassedEmptyArrayOfCommands`` () =
 [<InlineData("RRRR", "1:1:N")>]
 let ``RotateRight`` commands expectedResult =
     let startingPosition: Position = {x = Coordinate.One; y = Coordinate.One; direction = Direction.North}
-    let rover: Rover = {Position = startingPosition; Status = Operational; DetectedObstacle = None}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute rover obstacles commands
+    let result = Execute startingPosition obstacles commands
     let x = result = expectedResult
     Assert.True(x)
 
@@ -34,9 +32,8 @@ let ``RotateRight`` commands expectedResult =
 [<InlineData("LLLL", "1:1:N")>]
 let ``RotateLeft`` commands expectedResult =
     let startingPosition: Position = {x = Coordinate.One; y = Coordinate.One; direction = Direction.North}
-    let rover: Rover = {Position = startingPosition; Status = Operational; DetectedObstacle = None}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute rover obstacles commands
+    let result = Execute startingPosition obstacles commands
     let x = result = expectedResult
     Assert.True(x)
 
@@ -45,9 +42,8 @@ let ``RotateLeft`` commands expectedResult =
 [<InlineData("MM", "1:3:N")>]
 let ``MoveNorth`` commands expectedResult =
     let startingPosition: Position = {x = Coordinate.One; y = Coordinate.One; direction = Direction.North}
-    let rover: Rover = {Position = startingPosition; Status = Operational; DetectedObstacle = None}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute rover obstacles commands
+    let result = Execute startingPosition obstacles commands
     let x = result = expectedResult
     Assert.True(x)
 
@@ -56,9 +52,8 @@ let ``MoveNorth`` commands expectedResult =
 [<InlineData("MM", "1:1:S")>]
 let ``MoveSouth`` commands expectedResult =
     let startingPosition: Position = {x = Coordinate.One; y = Coordinate.Three; direction = Direction.South}
-    let rover: Rover = {Position = startingPosition; Status = Operational; DetectedObstacle = None}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute rover obstacles commands
+    let result = Execute startingPosition obstacles commands
     let x = result = expectedResult
     Assert.True(x)
 
@@ -67,9 +62,8 @@ let ``MoveSouth`` commands expectedResult =
 [<InlineData("MM", "3:1:E")>]
 let ``MoveEast`` commands expectedResult =
     let startingPosition: Position = {x = Coordinate.One; y = Coordinate.One; direction = Direction.East}
-    let rover: Rover = {Position = startingPosition; Status = Operational; DetectedObstacle = None}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute rover obstacles commands
+    let result = Execute startingPosition obstacles commands
     let x = result = expectedResult
     Assert.True(x)
 
@@ -78,9 +72,8 @@ let ``MoveEast`` commands expectedResult =
 [<InlineData("MM", "1:1:W")>]
 let ``MoveWest`` commands expectedResult =
     let startingPosition: Position = {x = Coordinate.Three; y = Coordinate.One; direction = Direction.West}
-    let rover: Rover = {Position = startingPosition; Status = Operational; DetectedObstacle = None}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute rover obstacles commands
+    let result = Execute startingPosition obstacles commands
     let x = result = expectedResult
     Assert.True(x)
 
@@ -88,9 +81,8 @@ let ``MoveWest`` commands expectedResult =
 [<InlineData("M")>]
 let ``WrapAroundNorthEdge`` (commands) =
     let startingPosition: Position = {x = Coordinate.One; y = Coordinate.Ten; direction = Direction.North}
-    let rover: Rover = {Position = startingPosition; Status = Operational; DetectedObstacle = None}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute rover obstacles commands
+    let result = Execute startingPosition obstacles commands
     let expectedResult = "1:1:N"
     let x = expectedResult = result
     Assert.True(x)
@@ -100,9 +92,8 @@ let ``WrapAroundNorthEdge`` (commands) =
 [<InlineData("M")>]
 let ``WrapAroundSouthEdge`` (commands) =
     let startingPosition: Position = {x = Coordinate.One; y = Coordinate.One; direction = Direction.South}
-    let rover: Rover = {Position = startingPosition; Status = Operational; DetectedObstacle = None}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute rover obstacles commands
+    let result = Execute startingPosition obstacles commands
     let expectedResult = "1:10:S"
     let x = expectedResult = result
     Assert.True(x)
@@ -112,9 +103,8 @@ let ``WrapAroundSouthEdge`` (commands) =
 [<InlineData("M")>]
 let ``WrapAroundEastEdge`` (commands) =
     let startingPosition: Position = {x = Coordinate.Ten; y = Coordinate.One; direction = Direction.East}
-    let rover: Rover = {Position = startingPosition; Status = Operational; DetectedObstacle = None}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute rover obstacles commands
+    let result = Execute startingPosition obstacles commands
     let expectedResult = "1:1:E"
     let x = expectedResult = result
     Assert.True(x)
@@ -124,9 +114,8 @@ let ``WrapAroundEastEdge`` (commands) =
 [<InlineData("M")>]
 let ``WrapAroundWestEdge`` (commands) =
     let startingPosition: Position = {x = Coordinate.One; y = Coordinate.One; direction = Direction.West}
-    let rover: Rover = {Position = startingPosition; Status = Operational; DetectedObstacle = None}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute rover obstacles commands
+    let result = Execute startingPosition obstacles commands
     let expectedResult = "10:1:W"
     let x = expectedResult = result
     Assert.True(x)
@@ -135,10 +124,9 @@ let ``WrapAroundWestEdge`` (commands) =
 [<Theory>]
 [<InlineData("MMRMMRMM")>]
 let ``HitAObstacleStopAndReturnTheObstacle`` (commands) =
-     let obstacles: Obstacle list = [{x=Three; y=Three}]
+     let obstacles: Obstacle list = [{x=Three; y=Three; direction = East}]
      let startingPosition: Position = {x = Coordinate.One; y = Coordinate.One; direction = Direction.North}
-     let startingRover: Rover = {Position = startingPosition; Status = Operational; DetectedObstacle = None}
      let expectedResult = "O:3:3:E"
-     let result = Execute startingRover obstacles commands
+     let result = Execute startingPosition obstacles commands
      let x = result = expectedResult
      Assert.True(x)
