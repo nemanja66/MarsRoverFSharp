@@ -8,7 +8,7 @@ let ``MakeNoMovementWhenPassedEmptyArrayOfCommands`` () =
     let commands = ""
     let startingPosition: Position = {x = Coordinate.One; y = Coordinate.One; direction = Direction.North}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute startingPosition obstacles commands
+    let result = execute startingPosition obstacles commands
     let expectedResult = "1:1:N"
     let x = expectedResult = result
     Assert.True(x)
@@ -21,7 +21,7 @@ let ``MakeNoMovementWhenPassedEmptyArrayOfCommands`` () =
 let ``RotateRight`` commands expectedResult =
     let startingPosition: Position = {x = Coordinate.One; y = Coordinate.One; direction = Direction.North}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute startingPosition obstacles commands
+    let result = execute startingPosition obstacles commands
     let x = result = expectedResult
     Assert.True(x)
 
@@ -33,7 +33,7 @@ let ``RotateRight`` commands expectedResult =
 let ``RotateLeft`` commands expectedResult =
     let startingPosition: Position = {x = Coordinate.One; y = Coordinate.One; direction = Direction.North}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute startingPosition obstacles commands
+    let result = execute startingPosition obstacles commands
     let x = result = expectedResult
     Assert.True(x)
 
@@ -43,7 +43,7 @@ let ``RotateLeft`` commands expectedResult =
 let ``MoveNorth`` commands expectedResult =
     let startingPosition: Position = {x = Coordinate.One; y = Coordinate.One; direction = Direction.North}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute startingPosition obstacles commands
+    let result = execute startingPosition obstacles commands
     let x = result = expectedResult
     Assert.True(x)
 
@@ -53,7 +53,7 @@ let ``MoveNorth`` commands expectedResult =
 let ``MoveSouth`` commands expectedResult =
     let startingPosition: Position = {x = Coordinate.One; y = Coordinate.Three; direction = Direction.South}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute startingPosition obstacles commands
+    let result = execute startingPosition obstacles commands
     let x = result = expectedResult
     Assert.True(x)
 
@@ -63,7 +63,7 @@ let ``MoveSouth`` commands expectedResult =
 let ``MoveEast`` commands expectedResult =
     let startingPosition: Position = {x = Coordinate.One; y = Coordinate.One; direction = Direction.East}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute startingPosition obstacles commands
+    let result = execute startingPosition obstacles commands
     let x = result = expectedResult
     Assert.True(x)
 
@@ -73,7 +73,7 @@ let ``MoveEast`` commands expectedResult =
 let ``MoveWest`` commands expectedResult =
     let startingPosition: Position = {x = Coordinate.Three; y = Coordinate.One; direction = Direction.West}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute startingPosition obstacles commands
+    let result = execute startingPosition obstacles commands
     let x = result = expectedResult
     Assert.True(x)
 
@@ -82,7 +82,7 @@ let ``MoveWest`` commands expectedResult =
 let ``WrapAroundNorthEdge`` (commands) =
     let startingPosition: Position = {x = Coordinate.One; y = Coordinate.Ten; direction = Direction.North}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute startingPosition obstacles commands
+    let result = execute startingPosition obstacles commands
     let expectedResult = "1:1:N"
     let x = expectedResult = result
     Assert.True(x)
@@ -93,7 +93,7 @@ let ``WrapAroundNorthEdge`` (commands) =
 let ``WrapAroundSouthEdge`` (commands) =
     let startingPosition: Position = {x = Coordinate.One; y = Coordinate.One; direction = Direction.South}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute startingPosition obstacles commands
+    let result = execute startingPosition obstacles commands
     let expectedResult = "1:10:S"
     let x = expectedResult = result
     Assert.True(x)
@@ -104,7 +104,7 @@ let ``WrapAroundSouthEdge`` (commands) =
 let ``WrapAroundEastEdge`` (commands) =
     let startingPosition: Position = {x = Coordinate.Ten; y = Coordinate.One; direction = Direction.East}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute startingPosition obstacles commands
+    let result = execute startingPosition obstacles commands
     let expectedResult = "1:1:E"
     let x = expectedResult = result
     Assert.True(x)
@@ -115,7 +115,7 @@ let ``WrapAroundEastEdge`` (commands) =
 let ``WrapAroundWestEdge`` (commands) =
     let startingPosition: Position = {x = Coordinate.One; y = Coordinate.One; direction = Direction.West}
     let obstacles: Obstacle list = List.empty<Obstacle>
-    let result = Execute startingPosition obstacles commands
+    let result = execute startingPosition obstacles commands
     let expectedResult = "10:1:W"
     let x = expectedResult = result
     Assert.True(x)
@@ -124,9 +124,9 @@ let ``WrapAroundWestEdge`` (commands) =
 [<Theory>]
 [<InlineData("MMRMMRMM")>]
 let ``HitAObstacleStopAndReturnTheObstacle`` (commands) =
-     let obstacles: Obstacle list = [{x=Three; y=Three; direction = East}]
+     let obstacles: Obstacle list = [{x=Three; y=Three}]
      let startingPosition: Position = {x = Coordinate.One; y = Coordinate.One; direction = Direction.North}
      let expectedResult = "O:3:3:E"
-     let result = Execute startingPosition obstacles commands
+     let result = execute startingPosition obstacles commands
      let x = result = expectedResult
      Assert.True(x)
