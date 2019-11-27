@@ -12,8 +12,6 @@ let bind processFunc lastResult =
 let (>>=) x f =
     bind f x
 
-let composeMovementFunctions fs = List.reduce (>>) fs
-
 type Status =
     | Operational
     | Blocked
@@ -42,34 +40,16 @@ type Position = {
     direction: Direction
 }
 
-//type Obstacle = {
-//    x: Coordinate
-//    y: Coordinate
-//}
-
-type ObstacleROP = {
+type Obstacle = {
     x: Coordinate
     y: Coordinate
     direction: Direction
 }
 
-//type Rover = {
-//    Position: Position
-//    Status: Status
-//    DetectedObstacle: Option<Obstacle>
-//}
-
-type MovementFunction = Position -> Position
-
 type Command =
     | RotateLeft
     | RotateRight
     | Move
-
-//type Command2 =
-//    | RotateLeft of MovementFunction
-//    | RotateRight of MovementFunction
-//    | Move of MovementFunction
 
 let generateCoordinateSuccessor coordinate =
         match coordinate with
@@ -123,30 +103,18 @@ let DetectCollision obstacles maybeObstacle =
             {x=maybeObstacle.x; y=maybeObstacle.y; direction = maybeObstacle.direction} |> Some
             else None
 
-//let TryApplyCommand currentRover roverWithNextPosition obstacles =
-//        match DetectCollision obstacles {x=roverWithNextPosition.Position.x; y=roverWithNextPosition.Position.y} with
-//            | Some obstacle -> {currentRover with Status = Blocked; DetectedObstacle = Some obstacle}
-//            | None -> roverWithNextPosition
-
-let tryApplyCommandROP: Position -> ObstacleROP list -> Result<ObstacleROP, Position> =
+let tryApplyCommandROP: Position -> Obstacle list -> Result<Position, Obstacle> =
     fun nextPosition obstacles ->
     match DetectCollision obstacles {x=nextPosition.x; y=nextPosition.y; direction = nextPosition.direction} with
         | Some obstacle -> Success {x=obstacle.x; y=obstacle.y; direction = obstacle.direction}
         | None -> Failure {x=nextPosition.x; y=nextPosition.y; direction = nextPosition.direction}
 
-//let CalculateNewPosition command rover obstacles =
-//        match command with
-//            | RotateLeft -> TryApplyCommand rover {rover with Position = RotateLeft rover.Position} obstacles
-//            | RotateRight -> TryApplyCommand rover {rover with Position = RotateRight rover.Position} obstacles
-//            | Move -> TryApplyCommand rover {rover with Position = CalculateNewCoordinates rover.Position} obstacles
-
-
-let calculateNewPositionROP command position obstacles =
-    match command with
-        | RotateLeft -> tryApplyCommandROP position obstacles
-        | RotateRight -> tryApplyCommandROP position obstacles
-        | Move -> tryApplyCommandROP position obstacles
-
+let calculateNewPositionROP: Command -> Obstacle list -> Position -> Result<Position, Obstacle> =
+    fun command obstacles position->
+        match command with
+            | RotateLeft -> tryApplyCommandROP position obstacles
+            | RotateRight -> tryApplyCommandROP position obstacles
+            | Move -> tryApplyCommandROP position obstacles
 
 let ParseInput chars =
         let commands: Command list = List.Empty 
@@ -188,30 +156,15 @@ let CoordinateToString coordinate =
             | Nine -> "9"
             | Ten -> "10"
 
-//let FormatOutput rover =
-//        let position = CoordinateToString rover.Position.x + ":" + CoordinateToString rover.Position.y + ":" + DirectionToString rover.Position.direction
-//        match rover.DetectedObstacle with
-//           | Some obstacle -> "O:" + CoordinateToString obstacle.x + ":" + CoordinateToString obstacle.y + ":" + DirectionToString rover.Position.direction
-//           | None -> position
-
-let formatOutputROP: Result<ObstacleROP, Position> -> string =
+let formatOutputROP: Result<Position, Obstacle> -> string =
         fun result ->
         match result with
            | Success o -> "O:" + CoordinateToString o.x + ":" + CoordinateToString o.y + ":" + DirectionToString o.direction
            | Failure p -> CoordinateToString p.x + ":" + CoordinateToString p.y + ":" + DirectionToString p.direction
-                        
-//let Execute rover obstacles commands =
-//        ParseInput commands |> List.fold (fun rover command ->
-//        match rover.Status with
-//        | Operational -> CalculateNewPosition command rover obstacles
-//        | Blocked -> rover) rover
-//        |> FormatOutput
 
-
-
-let ExecuteROP: Position -> ObstacleROP list -> string -> string =
+let Execute: Position -> Obstacle list -> string -> string =
     fun position obstacles commands ->
-        ParseInput commands |> List.fold (fun position command -> calculateNewPositionROP command position obstacles ) position
+        ParseInput commands |> List.fold (fun position command -> position >>= calculateNewPositionROP command obstacles) (Success position)
                             |> formatOutputROP
 
                             
