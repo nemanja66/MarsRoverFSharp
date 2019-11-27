@@ -106,18 +106,18 @@ let DetectCollision obstacles maybeObstacle =
             {x=maybeObstacle.x; y=maybeObstacle.y; direction = maybeObstacle.direction} |> Some
             else None
 
-let tryApplyCommandROP:  Obstacle list -> Position-> Result<Position, Obstacle> =
+let tryApplyCommand:  Obstacle list -> Position-> Result<Position, Obstacle> =
     fun obstacles nextPosition ->
     match DetectCollision obstacles {x=nextPosition.x; y=nextPosition.y; direction = nextPosition.direction} with
         | Some obstacle -> Failure {x=obstacle.x; y=obstacle.y; direction = obstacle.direction}
         | None -> Success {x=nextPosition.x; y=nextPosition.y; direction = nextPosition.direction}
 
-let calculateNewPositionROP: Command -> Obstacle list -> Position -> Result<Position, Obstacle> =
+let calculateNewPosition: Command -> Obstacle list -> Position -> Result<Position, Obstacle> =
     fun command obstacles position->
         match command with
-            | RotateLeft -> position |> RotateLeft |> tryApplyCommandROP obstacles
-            | RotateRight -> position |> RotateRight |> tryApplyCommandROP obstacles
-            | Move -> position |> CalculateNewCoordinates |> tryApplyCommandROP obstacles
+            | RotateLeft -> position |> RotateLeft |> tryApplyCommand obstacles
+            | RotateRight -> position |> RotateRight |> tryApplyCommand obstacles
+            | Move -> position |> CalculateNewCoordinates |> tryApplyCommand obstacles
 
 let ParseInput chars =
         let commands: Command list = List.Empty 
@@ -149,7 +149,7 @@ let CoordinateToString coordinate =
             | Nine -> "9"
             | Ten -> "10"
 
-let formatOutputROP: Result<Position, Obstacle> -> string =
+let formatOutput: Result<Position, Obstacle> -> string =
         fun result ->
         match result with
            | Success p -> CoordinateToString p.x + ":" + CoordinateToString p.y + ":" + DirectionToString p.direction
@@ -157,8 +157,8 @@ let formatOutputROP: Result<Position, Obstacle> -> string =
 
 let Execute: Position -> Obstacle list -> string -> string =
     fun position obstacles commands ->
-        ParseInput commands |> List.fold (fun position command -> position >>= calculateNewPositionROP command obstacles) (Success position)
-                            |> formatOutputROP
+        ParseInput commands |> List.fold (fun position command -> position >>= calculateNewPosition command obstacles) (Success position)
+                            |> formatOutput
 
                             
 
