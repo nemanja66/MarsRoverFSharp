@@ -1,21 +1,8 @@
 ﻿module Domain
 
-type Result<'TSuccess, 'TFailure> =
-    | Success of 'TSuccess
-    | Failure of 'TFailure
+let (>>=) x f = Result.bind f x
 
-let bind processFunc lastResult =
-    match lastResult with
-    | Success s -> processFunc s
-    | Failure f -> Failure f
-
-let (>>=) x f =
-    bind f x
-
-type Status =
-    | Operational
-    | Blocked
-
+[<RequireQualifiedAccess>]
 type Coordinate =
     | One
     | Two
@@ -28,134 +15,150 @@ type Coordinate =
     | Nine
     | Ten
 
+    override c.ToString() = 
+        match c with 
+        | One -> "1"
+        | Two -> "2"
+        | Three -> "3"
+        | Four -> "4"
+        | Five -> "5"
+        | Six -> "6"
+        | Seven -> "7"
+        | Eight -> "8"
+        | Nine -> "9"
+        | Ten -> "10"
+
+[<RequireQualifiedAccess>]
+module Coordinate = 
+    
+    let generateCoordinateSuccessor coordinate =
+        match coordinate with
+        | Coordinate.One -> Coordinate.Two
+        | Coordinate.Two -> Coordinate.Three
+        | Coordinate.Three -> Coordinate.Four
+        | Coordinate.Four -> Coordinate.Five
+        | Coordinate.Five -> Coordinate.Six
+        | Coordinate.Six -> Coordinate.Seven
+        | Coordinate.Seven -> Coordinate.Eight
+        | Coordinate.Eight -> Coordinate.Nine
+        | Coordinate.Nine -> Coordinate.Ten
+        | Coordinate.Ten -> Coordinate.One
+    
+    let generateCoordinatePredecessor coordinate =
+        match coordinate with
+        | Coordinate.Ten -> Coordinate.Nine
+        | Coordinate.Nine ->Coordinate.Eight
+        | Coordinate.Eight -> Coordinate.Seven
+        | Coordinate.Seven -> Coordinate.Six
+        | Coordinate.Six -> Coordinate.Five
+        | Coordinate.Five -> Coordinate.Four
+        | Coordinate.Four -> Coordinate.Three
+        | Coordinate.Three -> Coordinate.Two
+        | Coordinate.Two -> Coordinate.One
+        | Coordinate.One -> Coordinate.Ten
+
+[<RequireQualifiedAccess>]
 type Direction =
     | North
     | South
     | East
     | West
 
-type Obstacle = {
+    override d.ToString() = 
+        match d with
+        | North -> "N"
+        | South -> "S"
+        | East -> "E"
+        | West -> "W"
+
+[<RequireQualifiedAccess>]
+module Direction = 
+    let rotateLeft =
+        function
+        | Direction.North -> Direction.West
+        | Direction.South -> Direction.East
+        | Direction.East -> Direction.North
+        | Direction.West -> Direction.South
+
+    let rotateRight =
+        function
+        | Direction.North -> Direction.East
+        | Direction.South -> Direction.West
+        | Direction.East  -> Direction.South
+        | Direction.West  -> Direction.North
+
+type Location = {
     x: Coordinate
     y: Coordinate
 } 
 
-type Position = {
-    x: Coordinate
-    y: Coordinate
+type RoverPosition = {
+    location: Location
     direction: Direction
 }
 
+[<RequireQualifiedAccess>]
+module Position =
+    let rotateLeft p = 
+        { p with direction = Direction.rotateLeft p.direction }
+    let rotateRight p = 
+        { p with direction = Direction.rotateRight p.direction }
+
+[<RequireQualifiedAccess>]
 type Command =
     | RotateLeft
     | RotateRight
     | Move
 
-let generateCoordinateSuccessor coordinate =
-        match coordinate with
-        | One -> Two
-        | Two -> Three
-        | Three -> Four
-        | Four -> Five
-        | Five -> Six
-        | Six -> Seven
-        | Seven -> Eight
-        | Eight -> Nine
-        | Nine -> Ten
-        | Ten -> One
-
-let generateCoordinatePredecessor coordinate =
-        match coordinate with
-        | Ten -> Nine
-        | Nine -> Eight
-        | Eight -> Seven
-        | Seven -> Six
-        | Six -> Five
-        | Five -> Four
-        | Four -> Three
-        | Three -> Two
-        | Two -> One
-        | One -> Ten
-
-let rotateLeft position = 
-        match position.direction with
-        | North -> {position with direction = West}
-        | South -> {position with direction = East}
-        | East  -> {position with direction = North}
-        | West  -> {position with direction = South}
-
-let rotateRight position = 
-        match position.direction with
-        | North -> {position with direction = East}
-        | South -> {position with direction = West}
-        | East  -> {position with direction = South}
-        | West  -> {position with direction = North}
-
 let calculateNewCoordinates position = 
+    let point = position.location
+    let newLocation = 
         match position.direction with
-        | North -> {position with y = generateCoordinateSuccessor position.y}
-        | South -> {position with y = generateCoordinatePredecessor position.y}
-        | East  -> {position with x = generateCoordinateSuccessor position.x}
-        | West  -> {position with x = generateCoordinatePredecessor position.x}
+        | Direction.North -> 
+            { point with y = Coordinate.generateCoordinateSuccessor point.y }
+        | Direction.South -> 
+            { point with y = Coordinate.generateCoordinatePredecessor point.y } 
+        | Direction.East -> 
+            { point with x = Coordinate.generateCoordinateSuccessor point.x } 
+        | Direction.West -> 
+            { point with x = Coordinate.generateCoordinatePredecessor point.x }
+    { position with location = newLocation }
 
-let detectObstacle: Obstacle list -> Obstacle -> Obstacle option =
-        fun obstacles maybeObstacle ->
-            if List.contains maybeObstacle obstacles  then      
-                {x=maybeObstacle.x; y=maybeObstacle.y} |> Some
-                else None
-
-let tryApplyCommand: Obstacle list -> Position -> Result<Position, Obstacle*Direction> =
-    fun obstacles nextPosition ->
-        match detectObstacle obstacles {x=nextPosition.x; y=nextPosition.y} with
-            | Some obstacle -> Failure ({x=obstacle.x; y=obstacle.y}, nextPosition.direction)
-            | None -> Success {x=nextPosition.x; y=nextPosition.y; direction = nextPosition.direction}
- 
+let toFunc =
+    function
+    | Command.RotateLeft -> Position.rotateLeft
+    | Command.RotateRight -> Position.rotateRight
+    | Command.Move -> calculateNewCoordinates
+    
 let move command obstacles position =
-        match command with
-            | RotateLeft -> position |> rotateLeft |> tryApplyCommand obstacles
-            | RotateRight -> position |> rotateRight |> tryApplyCommand obstacles
-            | Move -> position |> calculateNewCoordinates |> tryApplyCommand obstacles
+    let newPosition = position |> command
+    let isObstacle = List.contains newPosition.location obstacles
+    newPosition |> if isObstacle then Error else Ok 
 
 let parseInput chars =
-        let commands: Command list = List.Empty 
-        Seq.toList chars |> List.fold (fun commands char ->
-            match char with
-                | 'L' -> Command.RotateLeft :: commands
-                | 'R' -> Command.RotateRight :: commands
-                | 'M' -> Command.Move :: commands
-                |  _  -> commands
-            ) commands |> List.rev
+    let commands: Command list = List.Empty 
+    Seq.toList chars 
+    |> List.fold (fun commands char ->
+        match char with
+        | 'L' -> Command.RotateLeft :: commands
+        | 'R' -> Command.RotateRight :: commands
+        | 'M' -> Command.Move :: commands
+        |  _  -> commands
+        ) commands 
+    |> List.rev
 
-let DirectionToString direction =
-         match direction with
-         | North -> "N"
-         | South -> "S"
-         | East -> "E"
-         | West -> "W"
-
-let CoordinateToString coordinate =
-        match coordinate with 
-            | One -> "1"
-            | Two -> "2"
-            | Three -> "3"
-            | Four -> "4"
-            | Five -> "5"
-            | Six -> "6"
-            | Seven -> "7"
-            | Eight -> "8"
-            | Nine -> "9"
-            | Ten -> "10"
-
-let formatOutput: Result<Position, Obstacle*Direction> -> string =
-    fun result ->
-        match result with
-           | Success p -> CoordinateToString p.x + ":" + CoordinateToString p.y + ":" + DirectionToString p.direction
-           | Failure o -> "O:" + ((o |> fst).x |> CoordinateToString) + ":" + ((o |> fst).y |> CoordinateToString) + ":" + (o |> snd |> DirectionToString)
+let formatOutput result =
+    let toStr p = 
+        sprintf "%O:%O:%O" p.location.x p.location.y p.direction
+        
+    match result with
+    | Ok p -> toStr p
+    | Error p -> toStr p |> sprintf "O:%s"
 
 let execute position obstacles commands =
-        parseInput commands |> List.fold (fun position command -> position >>= move command obstacles) (Success position)
-                            |> formatOutput
-
-                            
-
-
-        
+    parseInput commands
+    |> List.map toFunc
+    |> List.fold (fun position command -> 
+        position >>= move command obstacles) 
+        (Ok position)
+    |> formatOutput
