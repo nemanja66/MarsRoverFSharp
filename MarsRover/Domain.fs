@@ -87,13 +87,13 @@ module Direction =
         | Direction.East  -> Direction.South
         | Direction.West  -> Direction.North
 
-type Point = {
+type Location = {
     x: Coordinate
     y: Coordinate
 } 
 
-type RPosition = {
-    position: Point
+type Position = {
+    location: Location
     direction: Direction
 }
 
@@ -111,18 +111,13 @@ type Command =
     | Move
 
 let calculateNewCoordinates position = 
-    let point = position.position
+    let point = position.location
     match position.direction with
     | Direction.North -> { point with y = Coordinate.generateCoordinateSuccessor point.y }
     | Direction.South -> { point with y = Coordinate.generateCoordinatePredecessor point.y } 
     | Direction.East  -> { point with x = Coordinate.generateCoordinateSuccessor point.x } 
     | Direction.West  -> { point with x = Coordinate.generateCoordinatePredecessor point.x }
-    |> fun p -> { position with position = p }
-
-let tryApplyCommand obstacles nextPosition =
-    match List.contains nextPosition.position obstacles with
-    | true -> Error nextPosition
-    | false -> Ok nextPosition
+    |> fun p -> { position with location = p }
 
 let toFunc =
     function
@@ -131,23 +126,26 @@ let toFunc =
     | Command.Move -> calculateNewCoordinates
     
 let move command obstacles position =
-    position
-    |> command
-    |> tryApplyCommand obstacles
+    let newPosition = position |> command
+    let canMove = List.contains newPosition.location obstacles
+    newPosition 
+    |> if canMove then Error else Ok 
 
 let parseInput chars =
     let commands: Command list = List.Empty 
-    Seq.toList chars |> List.fold (fun commands char ->
+    Seq.toList chars 
+    |> List.fold (fun commands char ->
         match char with
         | 'L' -> Command.RotateLeft :: commands
         | 'R' -> Command.RotateRight :: commands
         | 'M' -> Command.Move :: commands
         |  _  -> commands
-        ) commands |> List.rev
+        ) commands 
+    |> List.rev
 
 let formatOutput result =
     let toStr p = 
-        sprintf "%O:%O:%O" p.position.x p.position.y p.direction
+        sprintf "%O:%O:%O" p.location.x p.location.y p.direction
         
     match result with
     | Ok p -> toStr p
