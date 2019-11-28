@@ -119,11 +119,10 @@ let calculateNewCoordinates position =
     | Direction.West  -> { point with x = Coordinate.generateCoordinatePredecessor point.x }
     |> fun p -> { position with position = p }
 
-let tryApplyCommand: Point list -> RPosition -> Result<RPosition, Point*Direction> =
-    fun obstacles nextPosition ->
-        match List.contains nextPosition.position obstacles with
-        | true -> Error (nextPosition.position, nextPosition.direction)
-        | false -> Ok nextPosition
+let tryApplyCommand obstacles nextPosition =
+    match List.contains nextPosition.position obstacles with
+    | true -> Error nextPosition
+    | false -> Ok nextPosition
 
 let toFunc =
     function
@@ -146,11 +145,13 @@ let parseInput chars =
         |  _  -> commands
         ) commands |> List.rev
 
-let formatOutput: Result<RPosition, Point*Direction> -> string =
-    fun result ->
-        match result with
-        | Ok p -> sprintf "%O:%O:%O" p.position.x p.position.y p.direction
-        | Error (o, d) -> sprintf "O:%O:%O:%O" o.x o.y d
+let formatOutput result =
+    let toStr p = 
+        sprintf "%O:%O:%O" p.position.x p.position.y p.direction
+        
+    match result with
+    | Ok p -> toStr p
+    | Error p -> toStr p |> sprintf "O:%s"
 
 let execute position obstacles commands =
     parseInput commands
@@ -159,5 +160,3 @@ let execute position obstacles commands =
         position >>= move command obstacles) 
         (Ok position)
     |> formatOutput
-
-                            
