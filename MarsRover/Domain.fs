@@ -47,7 +47,7 @@ module Coordinate =
     let generateCoordinatePredecessor coordinate =
         match coordinate with
         | Coordinate.Ten -> Coordinate.Nine
-        | Coordinate.Nine ->Coordinate. Eight
+        | Coordinate.Nine ->Coordinate.Eight
         | Coordinate.Eight -> Coordinate.Seven
         | Coordinate.Seven -> Coordinate.Six
         | Coordinate.Six -> Coordinate.Five
@@ -92,7 +92,7 @@ type Location = {
     y: Coordinate
 } 
 
-type Position = {
+type RoverPosition = {
     location: Location
     direction: Direction
 }
@@ -118,9 +118,9 @@ let calculateNewCoordinates position =
             { point with y = Coordinate.generateCoordinateSuccessor point.y }
         | Direction.South -> 
             { point with y = Coordinate.generateCoordinatePredecessor point.y } 
-        | Direction.East  -> 
+        | Direction.East -> 
             { point with x = Coordinate.generateCoordinateSuccessor point.x } 
-        | Direction.West  -> 
+        | Direction.West -> 
             { point with x = Coordinate.generateCoordinatePredecessor point.x }
     { position with location = newLocation }
 
@@ -132,9 +132,8 @@ let toFunc =
     
 let move command obstacles position =
     let newPosition = position |> command
-    let canMove = List.contains newPosition.location obstacles
-    newPosition 
-    |> if canMove then Error else Ok 
+    let isObstacle = List.contains newPosition.location obstacles
+    newPosition |> if isObstacle then Error else Ok 
 
 let parseInput chars =
     let commands: Command list = List.Empty 
