@@ -124,7 +124,7 @@ let ``WrapAroundWestEdge`` (commands) =
 [<Theory>]
 [<InlineData("MMRMMRMM")>]
 let ``HitAObstacleStopAndReturnTheObstacle`` (commands) =
-     let obstacles: Obstacle list = [{x=Three; y=Three}]
+     let obstacles: Obstacle list = [{x=Coordinate.Three; y=Coordinate.Three}]
      let startingPosition: Position = {x = Coordinate.One; y = Coordinate.One; direction = Direction.North}
      let expectedResult = "O:3:3:E"
      let result = execute startingPosition obstacles commands
