@@ -87,14 +87,13 @@ module Direction =
         | Direction.East  -> Direction.South
         | Direction.West  -> Direction.North
 
-type Obstacle = {
+type Point = {
     x: Coordinate
     y: Coordinate
 } 
 
-type Position = {
-    x: Coordinate
-    y: Coordinate
+type RPosition = {
+    position: Point
     direction: Direction
 }
 
@@ -112,23 +111,19 @@ type Command =
     | Move
 
 let calculateNewCoordinates position = 
+    let point = position.position
     match position.direction with
-    | Direction.North -> {position with y = Coordinate.generateCoordinateSuccessor position.y}
-    | Direction.South -> {position with y = Coordinate.generateCoordinatePredecessor position.y}
-    | Direction.East  -> {position with x = Coordinate.generateCoordinateSuccessor position.x}
-    | Direction.West  -> {position with x = Coordinate.generateCoordinatePredecessor position.x}
+    | Direction.North -> { point with y = Coordinate.generateCoordinateSuccessor point.y }
+    | Direction.South -> { point with y = Coordinate.generateCoordinatePredecessor point.y } 
+    | Direction.East  -> { point with x = Coordinate.generateCoordinateSuccessor point.x } 
+    | Direction.West  -> { point with x = Coordinate.generateCoordinatePredecessor point.x }
+    |> fun p -> { position with position = p }
 
-let detectObstacle: Obstacle list -> Obstacle -> Obstacle option =
-        fun obstacles maybeObstacle ->
-            if List.contains maybeObstacle obstacles  then      
-                {x=maybeObstacle.x; y=maybeObstacle.y} |> Some
-                else None
-
-let tryApplyCommand: Obstacle list -> Position -> Result<Position, Obstacle*Direction> =
+let tryApplyCommand: Point list -> RPosition -> Result<RPosition, Point*Direction> =
     fun obstacles nextPosition ->
-        match detectObstacle obstacles {x=nextPosition.x; y=nextPosition.y} with
-        | Some obstacle -> Error ({x=obstacle.x; y=obstacle.y}, nextPosition.direction)
-        | None -> Ok {x=nextPosition.x; y=nextPosition.y; direction = nextPosition.direction}
+        match List.contains nextPosition.position obstacles with
+        | true -> Error (nextPosition.position, nextPosition.direction)
+        | false -> Ok nextPosition
 
 let toFunc =
     function
@@ -151,10 +146,10 @@ let parseInput chars =
         |  _  -> commands
         ) commands |> List.rev
 
-let formatOutput: Result<Position, Obstacle*Direction> -> string =
+let formatOutput: Result<RPosition, Point*Direction> -> string =
     fun result ->
         match result with
-        | Ok p -> sprintf "%O:%O:%O" p.x p.y p.direction
+        | Ok p -> sprintf "%O:%O:%O" p.position.x p.position.y p.direction
         | Error (o, d) -> sprintf "O:%O:%O:%O" o.x o.y d
 
 let execute position obstacles commands =
