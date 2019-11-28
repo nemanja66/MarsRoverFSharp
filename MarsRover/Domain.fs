@@ -112,12 +112,17 @@ type Command =
 
 let calculateNewCoordinates position = 
     let point = position.location
-    match position.direction with
-    | Direction.North -> { point with y = Coordinate.generateCoordinateSuccessor point.y }
-    | Direction.South -> { point with y = Coordinate.generateCoordinatePredecessor point.y } 
-    | Direction.East  -> { point with x = Coordinate.generateCoordinateSuccessor point.x } 
-    | Direction.West  -> { point with x = Coordinate.generateCoordinatePredecessor point.x }
-    |> fun p -> { position with location = p }
+    let newLocation = 
+        match position.direction with
+        | Direction.North -> 
+            { point with y = Coordinate.generateCoordinateSuccessor point.y }
+        | Direction.South -> 
+            { point with y = Coordinate.generateCoordinatePredecessor point.y } 
+        | Direction.East  -> 
+            { point with x = Coordinate.generateCoordinateSuccessor point.x } 
+        | Direction.West  -> 
+            { point with x = Coordinate.generateCoordinatePredecessor point.x }
+    { position with location = newLocation }
 
 let toFunc =
     function
